@@ -4,6 +4,9 @@ import fetch from "node-fetch";
 
 const app = express();
 app.use(express.json());
+app.get("/", (req, res) => {
+  res.status(200).send("✅ Backend B&F rodando");
+});
 
 const FILE_ID = process.env.EXCEL_FILE_ID;
 const TOKEN = process.env.MS_TOKEN;
