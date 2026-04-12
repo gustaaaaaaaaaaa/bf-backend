@@ -1,28 +1,34 @@
+import express from "express";
+import ExcelJS from "exceljs";
+import fetch from "node-fetch";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import express from "express";
-import ExcelJS from "exceljs";
-import fetch from "node-fetch";
 
 const app = express();
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
-});
 
+/* ===============================
+   Middlewares
+=============================== */
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+/* ===============================
+   Config OneDrive
+=============================== */
 const FILE_ID = process.env.EXCEL_FILE_ID;
 const TOKEN = process.env.MS_TOKEN;
 
-const GRAPH_URL =
-  `https://graph.microsoft.com/v1.0/me/drive/items/${FILE_ID}/content`;
+const GRAPH_URL = `https://graph.microsoft.com/v1.0/me/drive/items/${FILE_ID}/content`;
 
+/* ===============================
+   Funções Excel
+=============================== */
 async function baixarPlanilha() {
   const res = await fetch(GRAPH_URL, {
-    headers: {
-      Authorization: `Bearer ${TOKEN}`
-    }
+    headers: { Authorization: `Bearer ${TOKEN}` }
   });
 
   if (!res.ok) {
@@ -35,9 +41,7 @@ async function baixarPlanilha() {
 async function salvarPlanilha(buffer) {
   const res = await fetch(GRAPH_URL, {
     method: "PUT",
-    headers: {
-      Authorization: `Bearer ${TOKEN}`
-    },
+    headers: { Authorization: `Bearer ${TOKEN}` },
     body: buffer
   });
 
@@ -46,12 +50,14 @@ async function salvarPlanilha(buffer) {
   }
 }
 
+/* ===============================
+   API – adicionar despesa
+=============================== */
 app.post("/despesas/adicionar", async (req, res) => {
   try {
     const { mesColuna, tipo, valor } = req.body;
 
     const buffer = await baixarPlanilha();
-
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(buffer);
 
@@ -83,7 +89,11 @@ app.post("/despesas/adicionar", async (req, res) => {
   }
 });
 
+/* ===============================
+   Start server
+=============================== */
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log("✅ Backend B&F rodando")
-);
+app.listen(PORT, () => {
+  console.log("✅ Backend + Frontend B&F rodando");
+});
+``
