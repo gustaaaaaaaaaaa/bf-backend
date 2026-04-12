@@ -1,11 +1,15 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import express from "express";
 import ExcelJS from "exceljs";
 import fetch from "node-fetch";
 
 const app = express();
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
-app.get("/", (req, res) => {
-  res.status(200).send("✅ Backend B&F rodando");
 });
 
 const FILE_ID = process.env.EXCEL_FILE_ID;
